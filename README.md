@@ -33,8 +33,8 @@ La idea estética: un "cuarto oscuro" digital donde la foto es la protagonista.
 
 ```bash
 # 1. Clonar el repositorio
-git clone <url-del-repo>
-cd sonzogni-mateo
+git clone https://github.com/MateoGs013/revelado.git
+cd revelado
 
 # 2. Instalar dependencias
 npm install
