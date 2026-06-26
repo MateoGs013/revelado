@@ -1,33 +1,31 @@
 # Revelado 🎞️
 
 Red social para fotógrafos, construida como SPA con Vue 3 y Supabase.
-La idea estética: un "cuarto oscuro" digital donde la foto es la protagonista.
-
-> ⚠️ Proyecto en desarrollo (entrega académica). Por ahora está implementada la
-> autenticación; el resto de las funcionalidades están en construcción.
+La idea estética: un "cuarto oscuro" digital donde la foto es la protagonista
+y la interfaz casi desaparece.
 
 ## ✨ Funcionalidades
 
-**Implementadas:**
-- Registro de usuarios con email y contraseña (Supabase Auth).
-- Inicio y cierre de sesión.
-- Estado de sesión reactivo y persistente (composable `useAuth`).
+- **Autenticación** con email y contraseña (registro, login, logout).
+- **Guard de rutas**: rutas privadas y redirección de invitados.
+- **Feed** con las publicaciones de todos los usuarios, en grilla.
+- **Crear publicaciones** con texto y una **imagen** (subida a Storage).
+- **Editar y eliminar** únicamente las publicaciones propias.
+- **Comentarios** por publicación.
+- **Tiempo real (Realtime)**: el feed y los comentarios se actualizan solos.
+- **Perfiles**: ver el perfil de cualquier usuario (sus datos + sus publicaciones).
+- **Editar el perfil propio**: nombre, biografía, avatar y contraseña.
 - Creación automática del perfil al registrarse (mediante un *trigger* de la base).
-
-**En desarrollo:**
-- Guard de rutas (proteger rutas privadas y redirigir invitados).
-- Feed de publicaciones en tiempo real (Realtime).
-- Crear / editar / eliminar publicaciones con imagen (Storage).
-- Comentarios en tiempo real.
-- Perfiles de usuario.
+- Animaciones sutiles con **GSAP** (reveals al entrar el feed).
 
 ## 🛠️ Tecnologías
 
 - **Vue 3** (Composition API, `<script setup>`)
 - **Vite** (bundler)
 - **Vue Router 4** (ruteo SPA, history mode)
-- **Tailwind CSS v4**
+- **Tailwind CSS v4** (tokens con `@theme`)
 - **Supabase** (Auth, Postgres, Storage, Realtime)
+- **GSAP** (animaciones)
 
 ## 📦 Instalación y ejecución
 
@@ -65,14 +63,27 @@ VITE_SUPABASE_KEY=sb_publishable_siOseIR-hzvrwNwvLRufYA__CXuvKd8
 
 ```
 src/
-├─ services/        # cliente de Supabase + lógica reutilizable (composables)
+├─ services/        # cliente de Supabase + lógica de datos
 │  ├─ supabase.js     # cliente único de Supabase
-│  └─ useAuth.js      # estado de sesión + login / register / logout
-├─ router/          # configuración de rutas (Vue Router)
-├─ views/           # pantallas (Home, Login, Register)
-├─ components/      # componentes reutilizables
-├─ App.vue          # layout raíz
-└─ main.js          # punto de entrada de la app
+│  ├─ useAuth.js      # sesión + login / register / logout / password
+│  ├─ posts.js        # leer / crear / editar / borrar / realtime de posts
+│  ├─ comments.js     # leer / crear / realtime de comentarios
+│  ├─ profiles.js     # leer y actualizar perfiles
+│  └─ storage.js      # subida de imágenes (posts y avatares)
+├─ components/
+│  ├─ Header.vue      # barra de navegación (reactiva según la sesión)
+│  ├─ PostCard.vue    # una publicación (autor, imagen, editar/borrar, comentarios)
+│  └─ Comments.vue    # comentarios de un post, en tiempo real
+├─ views/
+│  ├─ Home.vue        # feed + crear publicación
+│  ├─ Login.vue       # ingresar
+│  ├─ Register.vue    # crear cuenta
+│  ├─ UserProfile.vue # perfil de un usuario + sus posts
+│  └─ EditProfile.vue # editar nombre / bio / avatar / contraseña
+├─ router/router.js   # rutas + guard de autenticación
+├─ App.vue            # layout raíz
+├─ main.js            # punto de entrada
+└─ style.css          # tokens de diseño (@theme) + estilos base
 ```
 
 ## 📜 Scripts

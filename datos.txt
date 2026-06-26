@@ -1,0 +1,11 @@
+DATOS DE LA ENTREGA
+
+Carrera:
+Materia:
+Cuatrimestre:
+Año:
+Turno:
+Comisión:
+Apellido y nombre:      Sonzogni, Mateo
+Docente:                Santiago Gallino
+Carácter de entrega:    Segundo parcial (2do parcial)

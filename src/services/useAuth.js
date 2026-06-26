@@ -1,10 +1,10 @@
 import { ref } from "vue";
 import { supabase } from "./supabase";
 
-/* Estado del usuario autenticado */
+/* Estado del usuario autenticado, compartido por toda la app. */
 const user = ref(null);
 
-/* Escucha los cambios en el estado de autenticación */
+/* "Alarma": mantiene el estado al día cada vez que cambia el login. */
 supabase.auth.onAuthStateChange((event, session) => {
     user.value = session?.user ?? null;
 });
@@ -12,37 +12,35 @@ supabase.auth.onAuthStateChange((event, session) => {
 export function useAuth() {
 
     /**
-     * 
-     * @param { string } email 
-     * @param { string } password 
+     * Inicia sesión con email y contraseña.
+     * @param {string} email
+     * @param {string} password
      */
     async function login(email, password) {
-        const { error } = await supabase.auth.signInWithPassword({ 
-            email, 
-            password 
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
         });
         if (error) {
             throw new Error(error.message);
         }
     }
 
-    /**
-     * Cierra la sesion del usuario
-     */
-    async function logout () {
-        const { error } = await supabase.auth.signOut()
+    /** Cierra la sesión del usuario actual. */
+    async function logout() {
+        const { error } = await supabase.auth.signOut();
         if (error) {
-            throw new Error(error.message)
+            throw new Error(error.message);
         }
     }
 
     /**
-     * 
-     * @param {string} email 
-     * @param {string} password 
-     * @param {string} displayName 
+     * Registra un usuario nuevo. El display_name viaja en options.data
+     * para que el trigger de la base cree el profile automáticamente.
+     * @param {string} email
+     * @param {string} password
+     * @param {string} displayName
      */
-
     async function register(email, password, displayName) {
         const { error } = await supabase.auth.signUp({
             email,
@@ -58,10 +56,35 @@ export function useAuth() {
         }
     }
 
+    /**
+     * Cambia la contraseña del usuario logueado.
+     * @param {string} newPassword
+     */
+    async function updatePassword(newPassword) {
+        const { error } = await supabase.auth.updateUser({
+            password: newPassword,
+        });
+        if (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    /**
+     * Devuelve el usuario de la sesión actual, o null.
+     * Lee la sesión guardada, por eso es fiable incluso al recargar la página.
+     * @returns {Promise<object|null>}
+     */
+    async function getCurrentUser() {
+        const { data } = await supabase.auth.getSession();
+        return data.session?.user ?? null;
+    }
+
     return {
         user,
         login,
         logout,
         register,
-    }
+        updatePassword,
+        getCurrentUser,
+    };
 }

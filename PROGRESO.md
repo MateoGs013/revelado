@@ -1,78 +1,32 @@
-# Revelado — Progreso (actualizado 25/06/2026)
-
-> Nota personal de avance para retomar. No es un entregable (los entregables
-> son `README.md` y `datos.txt`). Podés borrarlo antes de la entrega final.
+# Revelado — Progreso (actualizado 26/06/2026)
 
 ## Estado general
-**Fase B (Auth) casi terminada.** Falta el guard de rutas.
+**Todas las fases (A–G) construidas.** La app compila (build OK) y corre.
+Falta solo: que pruebes cada feature con tu cuenta y completes `datos.txt`.
 
----
+## ✅ Implementado
+- **A — Scaffold:** Vite + Vue 3 + Tailwind v4 + cliente Supabase + `.env`.
+- **B — Auth:** `useAuth` (login/register/logout/updatePassword/getCurrentUser),
+  guard de rutas, vistas Login y Register, logout en el Header.
+- **C — Feed:** leer posts con autor, crear post con imagen (Storage),
+  feed en grilla + **Realtime**.
+- **D — Editar/borrar:** solo posts propios (`PostCard` muestra los botones si sos
+  el dueño) + **reveals con GSAP** al entrar el feed.
+- **E — Comentarios:** por post, en **Realtime** (`Comments.vue`).
+- **F — Perfiles:** ver el de cualquier usuario (`/usuario/:id`) + editar el propio
+  (`/perfil`: nombre, bio, avatar, contraseña).
+- **G — Pulido:** diseño "Revelado" (tokens `@theme` + fuentes), HTML semántico,
+  a11y (labels, aria-live, foco visible), JSDoc, README, `datos.txt`.
 
-## ✅ Hecho
+## ⏳ Pendiente (tuyo)
+1. **Completar `datos.txt`** (carrera, materia, cuatrimestre, año, turno, comisión).
+2. **Probar cada feature** logueado: crear post con foto, comentar, editar, borrar,
+   ver un perfil, editar tu perfil, cambiar contraseña.
+3. (Opcional) ajustar detalles de diseño a tu gusto.
 
-### Fase A — Scaffold
-- Vite + Vue 3 (Composition API, `<script setup>`) + Tailwind v4 (`@tailwindcss/vite`).
-- Cliente de Supabase en `src/services/supabase.js` (export `supabase`).
-- Credenciales en `.env`: `VITE_SUPABASE_URL` y `VITE_SUPABASE_KEY`.
+## Verificado por mí
+- `npm run build` → OK (88 módulos, sin errores).
+- Render real del feed logueado con el diseño aplicado, sin errores en consola.
 
-### Fase B — Auth (parcial)
-- **`src/services/useAuth.js`** (composable) — COMPLETO:
-  - `user` → `ref` a nivel módulo = estado compartido por toda la app.
-  - `onAuthStateChange` ("la alarma") mantiene `user` actualizado solo.
-  - Acciones: `login(email, password)`, `register(email, password, displayName)`, `logout()`.
-  - Las funciones lanzan `throw` si Supabase devuelve error (la vista decide el mensaje).
-- **`src/router/router.js`** — rutas: `/` (Home), `/login`, `/register`.
-- **`src/views/Login.vue`** — form + `useAuth().login` + error con `aria-live` + `loading` + redirect a `/`.
-- **`src/views/Register.vue`** — form + campo `displayName` + `useAuth().register`.
-  El **trigger** de la base crea la fila en `profiles` solo (mandamos `display_name` en `options.data`; NO insertamos a mano).
-- **Verificado:** el registro crea el usuario + su fila en `profiles`; el login con
-  credenciales falsas muestra el mensaje de error.
-
----
-
-## ⏳ Pendiente
-
-### 👉 Para retomar PRIMERO — el GUARD (cierra la Fase B)
-1. Marcar las rutas con `meta`:
-   - `/` (privada) → `meta: { requiresAuth: true }`.
-   - `/login` y `/register` (solo invitados) → `meta: { requiresGuest: true }`.
-2. `router.beforeEach(async (to) => { ... })`:
-   - ruta privada + sin sesión → redirigir a `/login`.
-   - ya logueado + va a `/login` o `/register` → redirigir a `/`.
-3. ⚠️ **Detalle clave a entender:** para el guard hay que chequear la sesión con
-   `await supabase.auth.getSession()` (o una función `getCurrentUser()` en `useAuth`),
-   **no solo el `user` reactivo**. Motivo: al **recargar** la página, el `user`
-   reactivo puede estar un instante en `null` (la "alarma" todavía no cargó la sesión)
-   y bouncearía a un usuario que SÍ está logueado. `getSession()` lee la sesión
-   guardada de forma fiable.
-4. Falta un **botón de logout** en la UI (en `App.vue` / nav) para cerrar sesión y
-   poder probar el guard como invitado.
-
-### Próximas fases
-- **C — Feed:** leer posts de todos, grilla, crear post, subir imagen a Storage, realtime.
-- **D —** editar/eliminar posts propios + reveals con GSAP.
-- **E —** comentarios con realtime.
-- **F —** perfiles (ver cualquiera + editar el propio: nombre / password / avatar).
-- **G — Pulido:** HTML semántico, a11y, JSDoc, `README.md`, `datos.txt`.
-  **Y sumar el diseño "Revelado"** (tokens de color + fuentes Instrument Serif / Space Mono)
-  que revertimos al principio — ahora la UI está sin estilos a propósito.
-
-### Limpieza menor
-- `src/components/HelloWorld.vue` quedó sin uso (App.vue ahora usa `<RouterView />`).
-  Se puede borrar.
-
----
-
-## Convenciones del proyecto (mantener para coherencia)
-- Estructura: `services/` (composables + cliente), `router/`, `views/`. (No usamos `lib/` + `composables/`).
-- Composition API + `<script setup>`.
-- Toda la lógica de datos vive en `services/` y lanza `throw`; las vistas deciden el mensaje (try/catch).
-- Estado de auth compartido = `ref` a nivel módulo, expuesto por `useAuth()`.
-- `.env`: la clave se llama `VITE_SUPABASE_KEY` (no `..._ANON_KEY`).
-- Nombres: funciones/variables en `camelCase`; componentes/vistas en `PascalCase`.
-
----
-
-## Cómo retomar mañana
-1. Abrir terminal en `sonzogni-mateo` y correr `npm run dev`.
-2. Decirle a Claude: **"dale con el guard"**.
+## Cómo correr
+`npm run dev` dentro del proyecto → `http://localhost:5173`.

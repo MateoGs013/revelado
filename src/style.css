@@ -1,1 +1,64 @@
 @import "tailwindcss";
+
+/*
+  TOKENS de "Revelado" (el cuarto oscuro).
+  En Tailwind v4 cada variable de @theme genera utilidades:
+  --color-noir -> bg-noir / text-noir / border-noir, --font-display -> font-display, etc.
+*/
+@theme {
+  --color-noir: #0c0c0e;       /* fondo casi negro */
+  --color-carbon: #16161a;     /* superficies y bordes */
+  --color-safelight: #e85d3d;  /* único acento: la lámpara del cuarto oscuro */
+  --color-ash: #8a8a92;        /* gris ceniza para texto secundario / metadata */
+  --color-ivory: #f4f1ea;      /* marfil para el texto principal */
+
+  --font-display: "Instrument Serif", serif;  /* titulares editoriales */
+  --font-mono: "Space Mono", monospace;       /* metadata tipo ficha técnica */
+}
+
+@layer base {
+  body {
+    background-color: var(--color-noir);
+    color: var(--color-ivory);
+    font-family: system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  /* Foco visible para accesibilidad (teclado). */
+  :focus-visible {
+    outline: 2px solid var(--color-safelight);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-safelight);
+    color: var(--color-noir);
+  }
+}
+
+/* Clases reutilizables para no repetir utilidades en cada formulario. */
+@layer components {
+  .label {
+    @apply block font-mono text-xs uppercase tracking-widest text-ash mb-1;
+  }
+  .field {
+    @apply w-full bg-carbon border border-ash/20 rounded px-3 py-2 text-ivory
+           placeholder:text-ash/50 focus:outline-none focus:border-safelight;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-safelight text-noir
+           font-mono text-sm uppercase tracking-wider px-4 py-2 rounded
+           transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center border border-ash/40 text-ivory
+           font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded
+           transition-colors hover:border-safelight;
+  }
+}
