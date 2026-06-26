@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { fetchComments, createComment, subscribeToNewComments } from "../services/comments";
+import Avatar from "./Avatar.vue";
 
 const props = defineProps({
     postId: { type: String, required: true },
@@ -49,14 +50,19 @@ async function handleSubmit() {
 
 <template>
   <section class="mt-4 border-t border-carbon pt-3">
-    <h3 class="font-mono text-xs uppercase tracking-widest text-ash mb-3">Comentarios</h3>
+    <h3 class="font-mono text-xs uppercase tracking-widest text-ash mb-3">
+      Comentarios<span v-if="comments.length" class="text-safelight"> · {{ comments.length }}</span>
+    </h3>
 
-    <ul v-if="comments.length" class="flex flex-col gap-2 mb-3">
-      <li v-for="comment in comments" :key="comment.id" class="text-sm leading-snug">
-        <span class="font-mono text-xs text-safelight">
-          {{ comment.profiles?.display_name ?? "Anónimo" }}
-        </span>
-        <span class="text-ivory/90"> {{ comment.content }}</span>
+    <ul v-if="comments.length" class="flex flex-col gap-3 mb-3">
+      <li v-for="comment in comments" :key="comment.id" class="flex items-start gap-2 text-sm leading-snug">
+        <Avatar :url="comment.profiles?.avatar_url" :name="comment.profiles?.display_name" :size="24" />
+        <p>
+          <span class="font-mono text-xs text-safelight">
+            {{ comment.profiles?.display_name ?? "Anónimo" }}
+          </span>
+          <span class="text-ivory/90"> {{ comment.content }}</span>
+        </p>
       </li>
     </ul>
     <p v-else class="text-sm text-ash mb-3">Sé el primero en comentar.</p>

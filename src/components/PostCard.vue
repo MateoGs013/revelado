@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed } from "vue";
 import { updatePost, deletePost } from "../services/posts";
+import { formatDate, formatRelative } from "../utils/date";
+import Avatar from "./Avatar.vue";
 import Comments from "./Comments.vue";
 
 const props = defineProps({
@@ -16,13 +18,6 @@ const editing = ref(false);
 const editContent = ref(props.post.content);
 const busy = ref(false);
 const errorMessage = ref("");
-
-/** Formatea la fecha como ficha técnica: "26 JUN 2026". */
-function formatDate(iso) {
-    return new Date(iso)
-        .toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })
-        .toUpperCase();
-}
 
 function startEdit() {
     editContent.value = props.post.content;
@@ -61,23 +56,22 @@ async function handleDelete() {
 <template>
   <article class="break-inside-avoid mb-4 bg-carbon/40 border border-carbon rounded-lg p-4">
     <header class="flex items-center gap-3 mb-3">
-      <img
-        v-if="post.profiles?.avatar_url"
-        :src="post.profiles.avatar_url"
-        :alt="`Avatar de ${post.profiles.display_name}`"
-        width="36"
-        height="36"
-        class="w-9 h-9 rounded-full object-cover"
-      />
+      <RouterLink :to="`/usuario/${post.user_id}`" :aria-label="`Ver el perfil de ${post.profiles?.display_name ?? 'un usuario'}`">
+        <Avatar :url="post.profiles?.avatar_url" :name="post.profiles?.display_name" :size="40" />
+      </RouterLink>
       <div class="leading-tight">
         <RouterLink
           :to="`/usuario/${post.user_id}`"
-          class="font-mono text-sm text-ivory hover:text-safelight"
+          class="font-mono text-sm text-ivory hover:text-safelight transition-colors"
         >
           {{ post.profiles?.display_name ?? "Anónimo" }}
         </RouterLink>
-        <time :datetime="post.created_at" class="block font-mono text-[0.65rem] text-ash">
-          {{ formatDate(post.created_at) }}
+        <time
+          :datetime="post.created_at"
+          :title="formatDate(post.created_at)"
+          class="block font-mono text-[0.65rem] text-ash"
+        >
+          {{ formatRelative(post.created_at) }}
         </time>
       </div>
     </header>

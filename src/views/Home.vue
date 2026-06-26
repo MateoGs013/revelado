@@ -93,7 +93,7 @@ async function handleCreatePost() {
 </script>
 
 <template>
-  <main class="max-w-3xl mx-auto px-4 py-8">
+  <main class="max-w-xl mx-auto px-4 py-8">
     <h1 class="font-display text-5xl text-ivory mb-1">Revelado</h1>
     <p class="font-mono text-xs uppercase tracking-[0.3em] text-ash mb-8">el cuarto oscuro</p>
 
@@ -130,8 +130,8 @@ async function handleCreatePost() {
       Todavía no hay publicaciones. Subí la primera.
     </p>
 
-    <!-- Feed en grilla tipo masonry -->
-    <div v-else ref="feedEl" class="columns-1 sm:columns-2 gap-4">
+    <!-- Feed en columna única (estilo red social) -->
+    <div v-else ref="feedEl" class="flex flex-col">
       <PostCard
         v-for="post in posts"
         :key="post.id"

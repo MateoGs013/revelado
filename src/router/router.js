@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
+import Explore from "../views/Explore.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import UserProfile from "../views/UserProfile.vue";
@@ -8,6 +9,7 @@ import { useAuth } from "../services/useAuth.js";
 
 const routes = [
     { path: "/", component: Home, meta: { requireAuth: true } },
+    { path: "/explorar", component: Explore, meta: { requireAuth: true } },
     { path: "/login", component: Login, meta: { requireGuest: true } },
     { path: "/register", component: Register, meta: { requireGuest: true } },
     { path: "/perfil", component: EditProfile, meta: { requireAuth: true } },

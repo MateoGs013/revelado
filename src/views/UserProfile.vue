@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { fetchProfile } from "../services/profiles";
 import { fetchPostsByUser } from "../services/posts";
 import { useAuth } from "../services/useAuth";
 import PostCard from "../components/PostCard.vue";
+import Avatar from "../components/Avatar.vue";
 
 const route = useRoute();
 const { user } = useAuth();
@@ -13,6 +14,9 @@ const profile = ref(null);
 const posts = ref([]);
 const loading = ref(true);
 const errorMessage = ref("");
+
+// Si el perfil que estoy mirando es el mío, muestro el atajo para editarlo.
+const isOwnProfile = computed(() => user.value?.id === route.params.id);
 
 async function load(id) {
     loading.value = true;
@@ -38,18 +42,15 @@ watch(() => route.params.id, (id) => { if (id) load(id); });
     <p v-else-if="errorMessage" role="alert" class="text-safelight">{{ errorMessage }}</p>
 
     <template v-else-if="profile">
-      <header class="flex items-center gap-4 mb-10">
-        <img
-          v-if="profile.avatar_url"
-          :src="profile.avatar_url"
-          :alt="`Avatar de ${profile.display_name}`"
-          width="64"
-          height="64"
-          class="w-16 h-16 rounded-full object-cover"
-        />
-        <div>
-          <h1 class="font-display text-4xl text-ivory">{{ profile.display_name ?? "Sin nombre" }}</h1>
-          <p v-if="profile.bio" class="font-mono text-sm text-ash mt-1">{{ profile.bio }}</p>
+      <header class="flex items-center gap-5 mb-10">
+        <Avatar :url="profile.avatar_url" :name="profile.display_name" :size="80" />
+        <div class="min-w-0">
+          <h1 class="font-display text-4xl text-ivory truncate">{{ profile.display_name ?? "Sin nombre" }}</h1>
+          <p class="font-mono text-xs uppercase tracking-widest text-ash mt-1">
+            {{ posts.length }} {{ posts.length === 1 ? "publicación" : "publicaciones" }}
+          </p>
+          <p v-if="profile.bio" class="font-mono text-sm text-ash mt-2">{{ profile.bio }}</p>
+          <RouterLink v-if="isOwnProfile" to="/perfil" class="btn-ghost mt-3">Editar perfil</RouterLink>
         </div>
       </header>
 

@@ -1,14 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useAuth } from "../services/useAuth";
 import { fetchProfile, updateProfile } from "../services/profiles";
 import { uploadAvatar } from "../services/storage";
+import Avatar from "../components/Avatar.vue";
 
 const { user, updatePassword } = useAuth();
 
 const displayName = ref("");
 const bio = ref("");
 const avatarFile = ref(null);
+const avatarUrl = ref(null);      // foto de perfil guardada actualmente
+const avatarPreview = ref(null);  // preview local del archivo recién elegido (antes de guardar)
 const newPassword = ref("");
 
 const loading = ref(true);
@@ -21,6 +24,7 @@ onMounted(async () => {
         const profile = await fetchProfile(user.value.id);
         displayName.value = profile.display_name ?? "";
         bio.value = profile.bio ?? "";
+        avatarUrl.value = profile.avatar_url ?? null;
     } catch (error) {
         errorMessage.value = error.message;
     } finally {
@@ -29,8 +33,17 @@ onMounted(async () => {
 });
 
 function handleAvatarChange(event) {
-    avatarFile.value = event.target.files[0] ?? null;
+    const file = event.target.files[0] ?? null;
+    avatarFile.value = file;
+    // Generamos un preview local para ver la foto antes de subirla.
+    if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value);
+    avatarPreview.value = file ? URL.createObjectURL(file) : null;
 }
+
+// Liberamos el preview al salir de la vista (evita fugas de memoria).
+onUnmounted(() => {
+    if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value);
+});
 
 async function handleSaveProfile() {
     saving.value = true;
@@ -41,9 +54,15 @@ async function handleSaveProfile() {
         // Si eligió un avatar nuevo, lo subimos y guardamos su URL.
         if (avatarFile.value) {
             data.avatar_url = await uploadAvatar(avatarFile.value, user.value.id);
+            avatarUrl.value = data.avatar_url; // reflejamos la foto nueva al instante
         }
         await updateProfile(user.value.id, data);
         avatarFile.value = null;
+        // Limpiamos el preview: la foto guardada ya es la nueva.
+        if (avatarPreview.value) {
+            URL.revokeObjectURL(avatarPreview.value);
+            avatarPreview.value = null;
+        }
         message.value = "Perfil actualizado.";
     } catch (error) {
         errorMessage.value = error.message;
@@ -87,13 +106,16 @@ async function handleChangePassword() {
         </div>
         <div>
           <label for="avatar" class="label">Avatar</label>
-          <input
-            type="file"
-            id="avatar"
-            accept="image/*"
-            @change="handleAvatarChange"
-            class="block w-full font-mono text-xs text-ash file:mr-3 file:rounded file:border file:border-ash/40 file:bg-transparent file:text-ivory file:px-3 file:py-1.5 file:uppercase file:cursor-pointer hover:file:border-safelight"
-          />
+          <div class="flex items-center gap-4">
+            <Avatar :url="avatarPreview ?? avatarUrl" :name="displayName" :size="72" />
+            <input
+              type="file"
+              id="avatar"
+              accept="image/*"
+              @change="handleAvatarChange"
+              class="block w-full font-mono text-xs text-ash file:mr-3 file:rounded file:border file:border-ash/40 file:bg-transparent file:text-ivory file:px-3 file:py-1.5 file:uppercase file:cursor-pointer hover:file:border-safelight"
+            />
+          </div>
         </div>
         <button type="submit" class="btn-primary" :disabled="saving">Guardar perfil</button>
       </form>
